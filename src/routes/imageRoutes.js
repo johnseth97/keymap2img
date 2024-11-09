@@ -1,10 +1,10 @@
 // src/routes/imageRoutes.js
-const express = require('express');
+import express from 'express';
+import { imageController } from '../controllers/imageController.js';
+
 const router = express.Router();
-const imageController = require('../controllers/imageController');
 
 // Route pattern: /:githubName/:repoName/:imageName.png
-router.get('/:githubName/:repoName/:imageName.png', imageController.generateImage);
+router.get('/:githubName/:repoName/*', imageController);
 
-module.exports = router;
-
+export default router;

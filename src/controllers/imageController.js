@@ -1,24 +1,32 @@
 // src/controllers/imageController.js
-const githubService = require('../services/githubService');
-const parserService = require('../services/parserService');
-const imageService = require('../services/imageService');
-const cache = require('../utils/cache');
-const sanitize = require('sanitize-filename');
+import fetchKeymap from '../services/githubService.js';
+import parseKeymap from '../services/parserService.js';
+import { generateImage } from '../services/imageService.js';
+import cache from '../utils/cache.js';
+import sanitize from 'sanitize-filename';
 
-exports.generateImage = async (req, res) => {
-    const { githubName, repoName, imageName } = req.params;
+export const imageController = async (req, res) => {
+    const { githubName, repoName } = req.params;
+    const restOfPath = req.params[0]; // Contains keymapPath and imageName
+
+    // Split restOfPath into keymapPath and imageName
+    const pathSegments = restOfPath.split('/');
+    const imageName = pathSegments.pop(); // Remove and get the last element (imageName)
+    const keymapPath = pathSegments.join('/'); // Reconstruct keymapPath
 
     // Sanitize inputs
     const sanitizedGithubName = sanitize(githubName);
     const sanitizedRepoName = sanitize(repoName);
     const sanitizedImageName = sanitize(imageName);
+    const sanitizedKeymapPath = keymapPath; // Do not sanitize to preserve slashes
 
-    if (!sanitizedGithubName || !sanitizedRepoName || !sanitizedImageName) {
-        return res.status(400).send('Invalid input parameters.');
+    // Check for directory traversal in keymapPath
+    if (sanitizedKeymapPath.includes('..')) {
+        return res.status(400).send('Invalid keymap path.');
     }
 
     // Check cache first
-    const cacheKey = `${githubName}/${repoName}/${imageName}`;
+    const cacheKey = `${sanitizedGithubName}/${sanitizedRepoName}/${sanitizedKeymapPath}/${sanitizedImageName}`;
     const cachedImage = cache.get(cacheKey);
     if (cachedImage) {
         console.log('Serving from cache');
@@ -28,41 +36,57 @@ exports.generateImage = async (req, res) => {
     }
 
     try {
-        // Parse imageName: e.g., img_left_layer_0
-        const [prefix, side, layerPart] = imageName.split('_');
-        const layerNumber = layerPart.replace('layer', '');
+        // Parse imageName: e.g., img_default_layer.png
+        const imageNameWithoutExt = sanitizedImageName.replace('.png', '');
+        const parts = imageNameWithoutExt.split('_');
 
-        if (prefix !== 'img' || !side || !layerNumber) {
+        if (parts.length >= 2) {
+            const [prefix, ...layerParts] = parts;
+            const layerName = layerParts.join('_');
+
+            console.log('prefix:', prefix);
+            console.log('layerName:', layerName);
+
+            if (prefix !== 'img' || !layerName) {
+                console.error('Invalid image name format: missing components');
+                return res.status(400).send('Invalid image name format.');
+            }
+
+            // Fetch keymap content from GitHub
+            const keymapContent = await fetchKeymap(
+                sanitizedGithubName,
+                sanitizedRepoName,
+                sanitizedKeymapPath
+            );
+
+            // Parse the keymap to get layer data
+            const layerData = parseKeymap(keymapContent, layerName);
+
+            // Generate image from layer data
+            const imageBuffer = await generateImage(layerData);
+
+            // Cache the image
+            cache.set(cacheKey, imageBuffer);
+
+            // Set headers
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader(
+                'Cache-Control',
+                'public, max-age=31536000, immutable'
+            );
+
+            // Send the image
+            res.send(imageBuffer);
+        } else {
+            console.error(
+                'Invalid image name format: incorrect number of parts'
+            );
             return res.status(400).send('Invalid image name format.');
         }
-
-        // Fetch keymap content from GitHub
-        const keymapContent = await githubService.fetchKeymap(
-            githubName,
-            repoName
-        );
-
-        // Parse the keymap to get layer data
-        const layerData = parserService.parseKeymap(
-            keymapContent,
-            side,
-            layerNumber
-        );
-
-        // Generate image from layer data
-        const imageBuffer = await imageService.generateImage(layerData);
-
-        // Cache the image
-        cache.set(cacheKey, imageBuffer);
-
-        // Set headers
-        res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-
-        // Send the image
-        res.send(imageBuffer);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error generating image.');
+        console.error('An error occurred:', error.message);
+        res.status(500).send(`Error generating image: ${error.message}`);
     }
 };
+
+export default imageController;

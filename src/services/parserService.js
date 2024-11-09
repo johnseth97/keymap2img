@@ -1,49 +1,42 @@
 // src/services/parserService.js
 
 /**
- * Parses the ZMK keymap content to extract key positions and labels for a specific layer and side.
- * This is a simplified example. You'll need to adjust the parsing logic based on your keymap file's structure.
- * 
- * @param {string} content - The content of the keymap file.
- * @param {string} side - 'left' or 'right'.
- * @param {string} layerNumber - The layer number as a string.
- * @returns {Object} - Parsed layer data.
+ * Parses the ZMK keymap content to extract key positions and labels for a specific layer.
+ * Adjusts the parsing logic based on your keymap file's structure.
+ *
+ * @param {string} keymapContent - The content of the keymap file.
+ * @param {string} layerName - The name of the layer to extract.
+ * @returns {Array} - Array of key bindings for the specified layer.
  */
-exports.parseKeymap = (content, side, layerNumber) => {
-  // Example parsing logic. Adjust based on actual keymap syntax.
+export default function parseKeymap(keymapContent, layerName) {
+    console.log('Parsing keymap content...');
+    console.log('Layer name:', layerName);
 
-  // Regular expression to find the specified layer.
-  const layerRegex = new RegExp(`&${side}_layer_${layerNumber}\\s*\\{([^}]+)\\}`, 'm');
-  const match = content.match(layerRegex);
+    // Use the layerName directly to find the layer in the keymap
+    const layerRegex = new RegExp(`${layerName}\\s*\\{([\\s\\S]*?)\\}`, 'm');
+    const layerMatch = keymapContent.match(layerRegex);
 
-  if (!match) {
-    throw new Error(`Layer ${layerNumber} for side ${side} not found.`);
-  }
+    if (!layerMatch) {
+        throw new Error(`Layer ${layerName} not found in keymap.`);
+    }
 
-  const layerContent = match[1].trim();
+    const layerContent = layerMatch[1];
 
-  // Split the layer content into individual keys. Adjust delimiter based on keymap syntax.
-  const keyLines = layerContent.split(/\s*,\s*\\n?/);
+    // Extract the bindings
+    const bindingsRegex = /bindings\s*=\s*<([\s\S]*?)>;/;
+    const bindingsMatch = layerContent.match(bindingsRegex);
 
-  // Parse each key definition. Adjust parsing based on keymap syntax.
-  const keys = keyLines.map((line, index) => {
-    // Example: KC_A, KC_B, etc.
-    const keyLabelMatch = line.match(/KC_\w+/);
-    const label = keyLabelMatch ? keyLabelMatch[0].replace('KC_', '') : 'EMPTY';
+    if (!bindingsMatch) {
+        throw new Error(`Bindings not found in layer ${layerName}.`);
+    }
 
-    // Calculate key position. This is a placeholder. Adjust based on actual keyboard layout.
-    const x = (index % 10) * 60 + 50; // Example positioning
-    const y = Math.floor(index / 10) * 60 + 50;
+    const bindingsContent = bindingsMatch[1];
 
-    return {
-      x,
-      y,
-      width: 50,
-      height: 50,
-      label,
-    };
-  });
+    // Split and clean the bindings
+    const allBindings = bindingsContent.trim().split(/[\s\n]+/);
 
-  return { keys };
-};
+    console.log(`Extracted bindings:`, allBindings);
 
+    // Return the bindings for further processing
+    return allBindings;
+}

@@ -1,32 +1,38 @@
 // src/services/githubService.js
-const { Octokit } = require('@octokit/rest');
+
+import { Octokit } from '@octokit/rest';
+import { Buffer } from 'buffer';
+import process from 'process';
 
 const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN, // Ensure GITHUB_TOKEN is set in environment variables
-  userAgent: 'keymap2img-app',
+    auth: process.env.GITHUB_TOKEN, // Ensure GITHUB_TOKEN is set in environment variables
+    userAgent: 'keymap2img-app',
 });
 
-exports.fetchKeymap = async (githubName, repoName) => {
-  try {
-    // Define the path to the keymap file.
-    // Update this path based on your ZMK repository structure.
-    const keymapPath = 'keyboards/your_keyboard/keymap.c'; // Example path
+const fetchKeymap = async (githubName, repoName, keymapPath) => {
+    try {
+        const response = await octokit.repos.getContent({
+            owner: githubName,
+            repo: repoName,
+            path: keymapPath,
+        });
 
-    const response = await octokit.repos.getContent({
-      owner: githubName,
-      repo: repoName,
-      path: keymapPath,
-    });
+        if (response.data.type !== 'file') {
+            throw new Error('Keymap path does not point to a file.');
+        }
 
-    if (response.data.type !== 'file') {
-      throw new Error('Keymap path does not point to a file.');
+        const content = Buffer.from(response.data.content, 'base64').toString(
+            'utf-8'
+        );
+
+        // Log the keymap content for debugging
+        console.log('Fetched keymap content:', content);
+
+        return content;
+    } catch (error) {
+        console.error('Error fetching keymap:', error.message);
+        throw new Error('Failed to fetch keymap from GitHub.');
     }
-
-    const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-    return content;
-  } catch (error) {
-    console.error('Error fetching keymap:', error.message);
-    throw new Error('Failed to fetch keymap from GitHub.');
-  }
 };
 
+export default fetchKeymap;

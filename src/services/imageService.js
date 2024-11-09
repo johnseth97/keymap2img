@@ -1,50 +1,57 @@
 // src/services/imageService.js
-const { createCanvas } = require('canvas');
 
-exports.generateImage = async (layerData) => {
-  const { keys } = layerData;
+// Import createCanvas from the canvas module
+import { createCanvas } from 'canvas';
 
-  // Define image dimensions. Adjust based on your keyboard layout.
-  const canvasWidth = 800;
-  const canvasHeight = 400;
+export async function generateImage(layerData) {
+    // Implement the logic to generate an image from the layerData array
 
-  const canvas = createCanvas(canvasWidth, canvasHeight);
-  const ctx = canvas.getContext('2d');
+    console.log('Generating image with layer data:', layerData);
 
-  // Set background
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    // Define canvas dimensions (adjust as needed)
+    const canvasWidth = 800;
+    const canvasHeight = 600;
 
-  // Draw each key
-  keys.forEach((key) => {
-    // Draw key rectangle
-    ctx.fillStyle = '#dddddd';
-    ctx.fillRect(key.x, key.y, key.width, key.height);
+    // Create a canvas
+    const canvas = createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext('2d');
 
-    // Draw key border
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(key.x, key.y, key.width, key.height);
+    // Set background color
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // Draw key label
-    ctx.fillStyle = '#000000';
+    // Load a font (optional)
     ctx.font = '16px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(
-      key.label,
-      key.x + key.width / 2,
-      key.y + key.height / 2
-    );
-  });
+    ctx.fillStyle = '#000000'; // Text color
 
-  // Optional: Add layer title or other annotations
-  ctx.fillStyle = '#000000';
-  ctx.font = '24px Arial';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText('Layer View', 50, 10);
+    // Example: Draw the key labels on the canvas
+    const keysPerRow = 12; // Adjust based on your keyboard layout
+    const keyWidth = 60; // Adjust as needed
+    const keyHeight = 60; // Adjust as needed
 
-  return canvas.toBuffer('image/png');
-};
+    for (let i = 0; i < layerData.length; i++) {
+        const keyLabel = layerData[i];
 
+        // Calculate x and y positions
+        const x = (i % keysPerRow) * keyWidth;
+        const y = Math.floor(i / keysPerRow) * keyHeight;
+
+        // Draw a rectangle for the key
+        ctx.strokeStyle = '#000000'; // Key border color
+        ctx.strokeRect(x, y, keyWidth, keyHeight);
+
+        // Draw the key label centered within the key
+        const textX = x + keyWidth / 2;
+        const textY = y + keyHeight / 2;
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(keyLabel.replace('&kp', '').trim(), textX, textY);
+    }
+
+    // Convert the canvas to a buffer
+    const imageBuffer = canvas.toBuffer('image/png');
+
+    // Return the generated image buffer
+    return imageBuffer;
+}

@@ -21,7 +21,7 @@ export async function generateImage(layerData) {
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Load a font (optional)
-    ctx.font = '16px Sans Serrif';
+    ctx.font = '14px ../../resources/fonts/Roboto-Regular.ttf';
     ctx.fillStyle = '#000000'; // Text color
 
     // Example: Draw the key labels on the canvas

@@ -2,7 +2,7 @@
 import fetchKeymap from '../services/githubService.js';
 import parseKeymap from '../services/parserService.js';
 import { generateImage } from '../services/imageService.js';
-import cache from '../utils/cache.js';
+//import cache from '../utils/cache.js';
 import sanitize from 'sanitize-filename';
 
 export const imageController = async (req, res) => {
@@ -26,14 +26,14 @@ export const imageController = async (req, res) => {
     }
 
     // Check cache first
-    const cacheKey = `${sanitizedGithubName}/${sanitizedRepoName}/${sanitizedKeymapPath}/${sanitizedImageName}`;
-    const cachedImage = cache.get(cacheKey);
-    if (cachedImage) {
-        console.log('Serving from cache');
-        res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        return res.send(cachedImage);
-    }
+    // const cacheKey = `${sanitizedGithubName}/${sanitizedRepoName}/${sanitizedKeymapPath}/${sanitizedImageName}`;
+    // const cachedImage = cache.get(cacheKey);
+    // if (cachedImage) {
+    //    console.log('Serving from cache');
+    //   res.setHeader('Content-Type', 'image/png');
+    //   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    //   return res.send(cachedImage);
+    //}
 
     try {
         // Parse imageName: e.g., img_default_layer.png
@@ -66,7 +66,7 @@ export const imageController = async (req, res) => {
             const imageBuffer = await generateImage(layerData);
 
             // Cache the image
-            cache.set(cacheKey, imageBuffer);
+            // cache.set(cacheKey, imageBuffer);
 
             // Set headers
             res.setHeader('Content-Type', 'image/png');

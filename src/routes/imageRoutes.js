@@ -5,7 +5,7 @@ import { imageController } from '../controllers/imageController.js';
 const router = express.Router();
 
 // Route pattern: /:githubName/:repoName/:imageName.png
-router.get('/:githubName/:repoName/*', imageController);
+router.get('/:githubName/:repoName/**.png', imageController);
 
 router.get('/', (req, res) => {
     res.send(

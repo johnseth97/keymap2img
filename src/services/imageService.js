@@ -4,20 +4,28 @@ import { createCanvas, GlobalFonts } from '@napi-rs/canvas';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Manually define __dirname for ES6 modules
+// Define __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Resolve the absolute path to the fonts directory
+const fontsDirectory = path.resolve(__dirname, '../../resources/fonts');
+
+// Register the custom font
+const fontPath = path.join(fontsDirectory, 'Roboto-Regular.ttf');
+const fontFamily = 'Roboto Regular'; // Ensure this matches the actual font family name
+
+const fontRegistrationResult = GlobalFonts.registerFromPath(
+    fontPath,
+    fontFamily
+);
+
+// Log the font registration result
+console.log(
+    `Font registration successful?: ${fontRegistrationResult} ${fontFamily} ${fontPath}`
+);
+
 export async function generateImage(layerData) {
-    console.log('Generating image with layer data:', layerData);
-
-    // Register a custom font (required on azure)
-    const fontPath = path.join(
-        __dirname,
-        '../../resources/fonts/Roboto-Regular.ttf'
-    );
-    GlobalFonts.registerFromPath(fontPath, 'Roboto-Regular');
-
     // Define canvas dimensions (adjust as needed)
     const canvasWidth = 800;
     const canvasHeight = 600;

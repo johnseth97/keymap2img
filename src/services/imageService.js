@@ -1,9 +1,22 @@
 // src/services/imageService.js
 
-import { createCanvas } from 'canvas';
+import { createCanvas, registerFont } from 'canvas';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Manually define __dirname for ES6 modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export async function generateImage(layerData) {
     console.log('Generating image with layer data:', layerData);
+
+    // Register a custom font (required on azure)
+    const fontPath = path.join(
+        __dirname,
+        '../../resources/fonts/Roboto-Regular.ttf'
+    );
+    registerFont(fontPath, { family: 'Roboto Regular' });
 
     // Define canvas dimensions (adjust as needed)
     const canvasWidth = 800;
@@ -18,7 +31,7 @@ export async function generateImage(layerData) {
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Load a font (optional)
-    ctx.font = '14px Arial'; // Adjust font as needed
+    ctx.font = '14px Roboto Regular'; // Adjust font as needed
     ctx.fillStyle = '#000000'; // Text color
 
     // Example: Draw the key labels on the canvas

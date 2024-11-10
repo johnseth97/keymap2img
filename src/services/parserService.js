@@ -1,12 +1,12 @@
 // src/services/parserService.js
 
 /**
- * Parses the ZMK keymap content to extract key positions and labels for a specific layer.
+ * Parses the ZMK keymap content to extract key bindings for a specific layer.
  * Adjusts the parsing logic based on your keymap file's structure.
  *
  * @param {string} keymapContent - The content of the keymap file.
  * @param {string} layerName - The name of the layer to extract.
- * @returns {Array} - Array of key bindings for the specified layer.
+ * @returns {Array} - Array of key binding objects for the specified layer.
  */
 export default function parseKeymap(keymapContent, layerName) {
     console.log('Parsing keymap content...');
@@ -32,11 +32,31 @@ export default function parseKeymap(keymapContent, layerName) {
 
     const bindingsContent = bindingsMatch[1];
 
-    // Split and clean the bindings
-    const allBindings = bindingsContent.trim().split(/[\s\n]+/);
+    // Tokenize the bindings
+    const tokens = bindingsContent.trim().split(/[\s\n]+/);
 
-    console.log(`Extracted bindings:`, allBindings);
+    console.log(`Tokens:`, tokens);
 
-    // Return the bindings for further processing
-    return allBindings;
+    const bindings = [];
+    let i = 0;
+    while (i < tokens.length) {
+        if (tokens[i].startsWith('&')) {
+            const behavior = tokens[i];
+            i++;
+            const args = [];
+            while (i < tokens.length && !tokens[i].startsWith('&')) {
+                args.push(tokens[i]);
+                i++;
+            }
+            bindings.push({ behavior: behavior, args: args });
+        } else {
+            // Handle unexpected tokens
+            console.warn(`Unexpected token: ${tokens[i]}`);
+            i++;
+        }
+    }
+
+    console.log(`Extracted bindings:`, bindings);
+
+    return bindings;
 }

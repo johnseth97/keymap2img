@@ -1,6 +1,6 @@
 // src/services/imageService.js
 
-import { createCanvas, registerFont } from 'canvas';
+import { createCanvas, GlobalFonts } from '@napi-rs/canvas';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -16,7 +16,7 @@ export async function generateImage(layerData) {
         __dirname,
         '../../resources/fonts/Roboto-Regular.ttf'
     );
-    registerFont(fontPath, { family: 'Roboto Regular' });
+    GlobalFonts.registerFromPath(fontPath, 'Roboto-Regular');
 
     // Define canvas dimensions (adjust as needed)
     const canvasWidth = 800;
@@ -27,7 +27,7 @@ export async function generateImage(layerData) {
     const ctx = canvas.getContext('2d');
 
     // Set background color
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = '#FFFFFFA0'; // Light gray with transparency
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Load a font (optional)

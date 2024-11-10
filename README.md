@@ -4,7 +4,7 @@
 To use, simply call the URL by following the format listed below(note the public domain will be avalible when ready):
 
 ```html
-https://<domain eg website.com>/<githubUsername>/<repoName>/<path>/<to>/<keymap.keymap>/<layerName>.png
+https://keymap2img.io/<githubUsername>/<repoName>/<path>/<to>/<keymap.keymap>/img_<layerName>.png
 ```
 
 

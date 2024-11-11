@@ -6,6 +6,8 @@ import router from './routes/imageRoutes';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
+// --fix-- Replace the following code in src/app.js:
+
 // Load environment variables
 dotenv.config();
 

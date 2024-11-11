@@ -12,7 +12,7 @@ const octokit = new Octokit({
 const fetchKeymap = async (
     githubName: string,
     repoName: string,
-    keymapPath: any
+    keymapPath: string
 ) => {
     try {
         const response = await octokit.repos.getContent({
@@ -37,8 +37,12 @@ const fetchKeymap = async (
         console.log('Fetched keymap content:', content);
 
         return content;
-    } catch (error: any) {
-        console.error('Error fetching keymap:', error.message);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('Error fetching keymap:', error.message);
+        } else {
+            console.error('Error fetching keymap:', error);
+        }
         throw new Error('Failed to fetch keymap from GitHub.');
     }
 };

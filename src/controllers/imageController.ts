@@ -1,12 +1,16 @@
-// src/controllers/imageController.js
+// src/controllers/imageController.ts
 import fetchKeymap from '../services/githubService.js';
 import parseKeymap from '../services/parserService.js';
 import { generateImage } from '../services/imageService.js';
 //import cache from '../utils/cache.js';
 import sanitize from 'sanitize-filename';
-import { Url } from 'url';
 
-export const imageController = async (req: any, res: any) => {
+import { Request, Response } from 'express';
+
+export const imageController = async (
+    req: Request,
+    res: Response
+): Promise<void> => {
     const { githubName, repoName } = req.params;
     const restOfPath = req.params[0]; // Contains keymapPath and imageName
 
@@ -18,12 +22,12 @@ export const imageController = async (req: any, res: any) => {
     // Sanitize inputs
     const sanitizedGithubName = sanitize(githubName);
     const sanitizedRepoName = sanitize(repoName);
-    const sanitizedImageName = sanitize(imageName);
+    const sanitizedImageName = sanitize(imageName || '');
     const sanitizedKeymapPath = keymapPath; // Do not sanitize to preserve slashes
 
     // Check for directory traversal in keymapPath
     if (sanitizedKeymapPath.includes('..')) {
-        return res.status(400).send('Invalid keymap path.');
+        res.status(400).send('Invalid keymap path.');
     }
 
     // Check cache first
@@ -50,7 +54,7 @@ export const imageController = async (req: any, res: any) => {
 
             if (prefix !== 'img' || !layerName) {
                 console.error('Invalid image name format: missing components');
-                return res.status(400).send('Invalid image name format.');
+                res.status(400).send('Invalid image name format.');
             }
 
             // Fetch keymap content from GitHub
@@ -82,11 +86,18 @@ export const imageController = async (req: any, res: any) => {
             console.error(
                 'Invalid image name format: incorrect number of parts'
             );
-            return res.status(400).send('Invalid image name format.');
+            res.status(400).send('Invalid image name format.');
+            return;
         }
-    } catch (error: any) {
-        console.error('An error occurred:', error.message);
-        res.status(500).send(`Error generating image: ${error.message}`);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('An error occurred:', error.message);
+            res.status(500).send(`Error generating image: ${error.message}`);
+        } else {
+            console.error('An unknown error occurred');
+            res.status(500).send('Error generating image');
+        }
+        return;
     }
 };
 

@@ -4,8 +4,9 @@ import parseKeymap from '../services/parserService.js';
 import { generateImage } from '../services/imageService.js';
 //import cache from '../utils/cache.js';
 import sanitize from 'sanitize-filename';
+import { Url } from 'url';
 
-export const imageController = async (req, res) => {
+export const imageController = async (req: any, res: any) => {
     const { githubName, repoName } = req.params;
     const restOfPath = req.params[0]; // Contains keymapPath and imageName
 
@@ -83,7 +84,7 @@ export const imageController = async (req, res) => {
             );
             return res.status(400).send('Invalid image name format.');
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error('An error occurred:', error.message);
         res.status(500).send(`Error generating image: ${error.message}`);
     }

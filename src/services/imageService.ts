@@ -25,7 +25,7 @@ console.log(
     `Font registration successful?: ${fontRegistrationResult} ${fontFamily} ${fontPath}`
 );
 
-export async function generateImage(layerData) {
+export async function generateImage(layerData: string | any[]) {
     // Define canvas dimensions (adjust as needed)
     const canvasWidth = 800;
     const canvasHeight = 600;

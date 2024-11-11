@@ -2,13 +2,13 @@
     "name": "keymap2img",
     "version": "1.0.0",
     "description": "Generate Images of your keymap from your GitHub repository",
-    "main": "src/app.js",
+    "main": "src/app.ts",
     "type": "module",
     "scripts": {
         "start": "node ./dist/app.js",
         "tsc": "tsc",
         "postinstall": "npm run tsc",
-        "dev": "ts-node-dev — respawn — pretty — transpile-only index.ts",
+        "dev": "tsx watch ./src/app.ts",
         "lint": "eslint ."
     },
     "keywords": [],
@@ -37,6 +37,7 @@
         "nodemon": "^3.1.7",
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0",
+        "tsx": "^4.19.2",
         "typescript": "^5.6.3"
     }
 }

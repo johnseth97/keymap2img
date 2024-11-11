@@ -8,7 +8,7 @@
  * @param {string} layerName - The name of the layer to extract.
  * @returns {Array} - Array of key binding objects for the specified layer.
  */
-export default function parseKeymap(keymapContent, layerName) {
+export default function parseKeymap(keymapContent: string, layerName: string) {
     console.log('Parsing keymap content...');
     console.log('Layer name:', layerName);
 

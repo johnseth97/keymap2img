@@ -8,9 +8,12 @@
  * @param {string} layerName - The name of the layer to extract.
  * @returns {Array} - Array of key binding objects for the specified layer.
  */
+
+import logger from '../utils/logger.js';
+
 export default function parseKeymap(keymapContent: string, layerName: string) {
-    console.log('Parsing keymap content...');
-    console.log('Layer name:', layerName);
+    logger.info('Parsing keymap content...');
+    logger.debug(`Layer name: ${layerName}`);
 
     // Use the layerName directly to find the layer in the keymap
     const layerRegex = new RegExp(`${layerName}\\s*\\{([\\s\\S]*?)\\}`, 'm');
@@ -35,7 +38,7 @@ export default function parseKeymap(keymapContent: string, layerName: string) {
     // Tokenize the bindings
     const tokens = bindingsContent.trim().split(/[\s\n]+/);
 
-    console.log(`Tokens:`, tokens);
+    logger.info(`Tokens: ${tokens}`);
 
     const bindings = [];
     let i = 0;
@@ -51,12 +54,12 @@ export default function parseKeymap(keymapContent: string, layerName: string) {
             bindings.push({ behavior: behavior, args: args });
         } else {
             // Handle unexpected tokens
-            console.warn(`Unexpected token: ${tokens[i]}`);
+            logger.warn(`Unexpected token: ${tokens[i]}`);
             i++;
         }
     }
 
-    console.log(`Extracted bindings:`, bindings);
+    logger.debug(`Extracted bindings: ${bindings}`);
 
     return bindings;
 }

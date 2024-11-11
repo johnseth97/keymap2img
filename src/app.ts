@@ -5,6 +5,7 @@ import process from 'process';
 import router from './routes/imageRoutes.js';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import logger from './utils/logger.js';
 
 // --fix-- Replace the following code in src/app.js:
 
@@ -39,5 +40,5 @@ app.use((req, res) => {
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    logger.info(`Server is running on port ${PORT}`);
 });

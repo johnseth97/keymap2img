@@ -1,26 +1,30 @@
-// src/services/parserService.js
+// src/services/parserService.ts
+
+import logger from '../utils/logger.js';
+import { KeyBinding } from '../types/keyboard.js';
 
 /**
  * Parses the ZMK keymap content to extract key bindings for a specific layer.
- * Adjusts the parsing logic based on your keymap file's structure.
  *
- * @param {string} keymapContent - The content of the keymap file.
- * @param {string} layerName - The name of the layer to extract.
- * @returns {Array} - Array of key binding objects for the specified layer.
+ * @param keymapContent - The content of the keymap file.
+ * @param layerName - The name of the layer to extract.
+ * @returns An array of key binding objects for the specified layer.
  */
-
-import logger from '../utils/logger.js';
-
 export default function parseKeymap(keymapContent: string, layerName: string) {
-    logger.info('Parsing keymap content...');
+    logger.debug('Parsing keymap content...');
     logger.debug(`Layer name: ${layerName}`);
 
-    // Use the layerName directly to find the layer in the keymap
+    // Remove comments (assuming C-like comments)
+    const uncommentedContent = keymapContent
+        .replace(/\/\/.*$/gm, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '');
+
+    // Use the layerName to find the layer in the keymap
     const layerRegex = new RegExp(`${layerName}\\s*\\{([\\s\\S]*?)\\}`, 'm');
-    const layerMatch = keymapContent.match(layerRegex);
+    const layerMatch = uncommentedContent.match(layerRegex);
 
     if (!layerMatch) {
-        throw new Error(`Layer ${layerName} not found in keymap.`);
+        throw new Error(`Layer "${layerName}" not found in keymap.`);
     }
 
     const layerContent = layerMatch[1];
@@ -30,36 +34,39 @@ export default function parseKeymap(keymapContent: string, layerName: string) {
     const bindingsMatch = layerContent.match(bindingsRegex);
 
     if (!bindingsMatch) {
-        throw new Error(`Bindings not found in layer ${layerName}.`);
+        throw new Error(`Bindings not found in layer "${layerName}".`);
     }
 
     const bindingsContent = bindingsMatch[1];
 
-    // Tokenize the bindings
-    const tokens = bindingsContent.trim().split(/[\s\n]+/);
+    // Tokenize the bindings, handling commas and whitespace
+    const tokens = bindingsContent
+        .replace(/,/g, ' ') // Replace commas with spaces
+        .trim()
+        .split(/\s+/); // Split by any whitespace
 
-    logger.info(`Tokens: ${tokens}`);
+    logger.debug(`Tokens: ${tokens}`);
 
-    const bindings = [];
+    const bindings: KeyBinding[] = [];
     let i = 0;
     while (i < tokens.length) {
         if (tokens[i].startsWith('&')) {
             const behavior = tokens[i];
             i++;
-            const args = [];
+            const args: string[] = [];
             while (i < tokens.length && !tokens[i].startsWith('&')) {
                 args.push(tokens[i]);
                 i++;
             }
-            bindings.push({ behavior: behavior, args: args });
+            bindings.push({ behavior, args });
         } else {
             // Handle unexpected tokens
-            logger.warn(`Unexpected token: ${tokens[i]}`);
+            logger.warn(`Unexpected token: "${tokens[i]}"`);
             i++;
         }
     }
 
-    logger.debug(`Extracted bindings: ${bindings}`);
+    logger.debug(`Extracted bindings: ${JSON.stringify(bindings, null, 2)}`);
 
     return bindings;
 }

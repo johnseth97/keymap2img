@@ -12,7 +12,7 @@ import cache from '../utils/cache.js';
 import sanitize from 'sanitize-filename';
 
 import { Request, Response } from 'express';
-import { KeyboardHalfConfig, Keyboard } from '../types/keyboard';
+import { KeyboardHalfConfig, Keyboard } from '../types/keyboard.js';
 import logger from '../utils/logger.js'; // Assuming you've implemented the logger as recommended
 
 type ImageType = 'both' | 'left' | 'right' | 'default';
@@ -21,6 +21,9 @@ export const imageController = async (
     req: Request,
     res: Response
 ): Promise<void> => {
+    // Log request URL
+    logger.info(`Request URL: ${req.url}`);
+
     const { githubName, repoName, imageName } = req.params;
     const keymapPath = req.params[0]; // Contains the keymap path
 
@@ -62,7 +65,7 @@ export const imageController = async (
         imageType = 'both';
     }
 
-    logger.info(
+    logger.debug(
         `Request Parameters - Prefix: ${prefix}, Layer Name: ${layerName}, Image Type: ${imageType}`
     );
 
@@ -87,7 +90,7 @@ export const imageController = async (
 
     try {
         // Fetch keymap content from GitHub
-        logger.info('Fetching keymap content from GitHub.');
+        logger.debug('Fetching keymap content from GitHub.');
         const keymapContent = await fetchKeymap(
             sanitizedGithubName,
             sanitizedRepoName,
@@ -95,14 +98,14 @@ export const imageController = async (
         );
 
         // Fetch shields from GitHub
-        logger.info('Fetching shield configurations from GitHub.');
+        logger.debug('Fetching shield configurations from GitHub.');
         const shields = await fetchShields(
             sanitizedGithubName,
             sanitizedRepoName
         );
 
         // Validate shields and get their configurations
-        logger.info('Processing shield configurations.');
+        logger.debug('Processing shield configurations.');
         const shieldConfigs: KeyboardHalfConfig[] = await shieldHelper(shields);
 
         // Check if necessary shield configurations are present based on imageType
@@ -138,31 +141,32 @@ export const imageController = async (
         }
 
         // Parse the keymap to get layer data
-        logger.info('Parsing keymap content.');
+        logger.debug('Parsing keymap content.');
         const layerData = parseKeymap(keymapContent, layerName);
         logger.debug('Parsed layer data:', JSON.stringify(layerData, null, 2));
 
         // Map bindings to structured Keyboard object
-        logger.info('Mapping bindings to keyboard structure.');
+        logger.debug('Mapping bindings to keyboard structure.');
         const keyboard = mapBindingsToKeyboard(layerData, shieldConfigs);
         logger.debug(
-            'Mapped Keyboard Object:',
-            JSON.stringify(keyboard, null, 2)
+            `Mapped Keyboard Object:,
+            ${JSON.stringify(keyboard, null, 2)}
+        `
         );
 
         let imageBuffer: Buffer;
 
         if (imageType === 'both') {
             // Generate combined image
-            logger.info('Generating combined image.');
+            logger.debug('Generating combined image.');
             imageBuffer = await generateImage(keyboard, shieldConfigs);
-            logger.info(
+            logger.debug(
                 `Combined image generated. Buffer size: ${imageBuffer.length}`
             );
         } else {
             // Generate single shield image
             const side = imageType as 'left' | 'right';
-            logger.info(`Generating ${side} shield image.`);
+            logger.debug(`Generating ${side} shield image.`);
             const shieldConfig = shieldConfigs.find(
                 (config) => config.side === side
             );

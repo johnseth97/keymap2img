@@ -1,7 +1,7 @@
 // src/services/imageService/index.ts
-export { generateSingleImage } from './generateSingleImage';
-export { generateImage } from './generateImage';
-export { mapBindingsToKeyboard } from './mapBindingsToKeyboard';
+export { generateSingleImage } from './generateSingleImage.js';
+export { generateImage } from './generateImage.js';
+export { mapBindingsToKeyboard } from './mapBindingsToKeyboard.js';
 
 import { GlobalFonts } from '@napi-rs/canvas';
 import { fileURLToPath } from 'url';

@@ -1,8 +1,8 @@
 // src/helpers/shieldHelper.ts
 
-import { KeyboardHalfConfig } from '../types/keyboard';
-import { lily58_left_Config } from '../resources/shields/lily58_left';
-import { lily58_right_Config } from '../resources/shields/lily58_right';
+import { KeyboardHalfConfig } from '../types/keyboard.js';
+import { lily58_left_Config } from '../resources/shields/lily58_left.js';
+import { lily58_right_Config } from '../resources/shields/lily58_right.js';
 import logger from '../utils/logger.js';
 
 /**

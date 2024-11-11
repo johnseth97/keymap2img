@@ -1,9 +1,32 @@
 // src/services/imageService/generateSingleImage.ts
 
 import { createCanvas, GlobalFonts } from '@napi-rs/canvas';
-import { KeyRow, KeyboardHalfConfig } from '../../types/keyboard';
+import { KeyRow, KeyboardHalfConfig } from '../../types/keyboard.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
+
+// Define __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Resolve the absolute path to the fonts directory
+const fontsDirectory = path.resolve(__dirname, '../resources/fonts');
+
+// Register the custom font
+const fontPath = path.join(fontsDirectory, 'Roboto-Regular.ttf');
+const fontFamily = 'Roboto Regular'; // Ensure this matches the actual font family name
+
+const fontRegistrationResult = GlobalFonts.registerFromPath(
+    fontPath,
+    fontFamily
+);
+
+// Log the font registration result
+logger.debug(
+    `Font registration successful?: ${fontRegistrationResult} ${fontFamily} ${fontPath}`
+);
 
 /**
  * Generates an image buffer for a single shield configuration (left or right).

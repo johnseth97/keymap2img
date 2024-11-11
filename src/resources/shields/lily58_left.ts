@@ -1,6 +1,6 @@
 // resources/shields/lily58_left/lily58_left.ts
 
-import { KeyboardHalfConfig } from '../../types/keyboard';
+import { KeyboardHalfConfig } from '../../types/keyboard.js';
 
 export const lily58_left_Config: KeyboardHalfConfig = {
     side: 'left',

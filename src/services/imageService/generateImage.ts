@@ -1,10 +1,10 @@
 // src/services/imageService/generateImage.ts
 
 import { createCanvas, Image } from '@napi-rs/canvas';
-import { Keyboard, KeyboardHalfConfig, KeyRow } from '../../types/keyboard';
-import { generateSingleImage } from './generateSingleImage';
+import { Keyboard, KeyboardHalfConfig } from '../../types/keyboard.js';
+import { generateSingleImage } from './generateSingleImage.js';
 
-import logger from '../../utils/logger';
+import logger from '../../utils/logger.js';
 
 /**
  * Generates a combined image buffer for both left and right shield configurations.
@@ -18,7 +18,7 @@ export async function generateImage(
     shieldConfigs: KeyboardHalfConfig[]
 ): Promise<Buffer> {
     // Log the received shield configurations
-    logger.info(
+    logger.debug(
         'Received shield configurations for image generation:',
         JSON.stringify(shieldConfigs, null, 2)
     );
@@ -28,11 +28,11 @@ export async function generateImage(
     const rightConfig = shieldConfigs.find((config) => config.side === 'right');
 
     // Log the found configurations
-    logger.info(
+    logger.debug(
         'Left Config:',
         leftConfig ? JSON.stringify(leftConfig, null, 2) : 'Not Found'
     );
-    logger.info(
+    logger.debug(
         'Right Config:',
         rightConfig ? JSON.stringify(rightConfig, null, 2) : 'Not Found'
     );
@@ -42,28 +42,28 @@ export async function generateImage(
     }
 
     // Generate images for both left and right configurations
-    logger.info('Generating left shield image...');
+    logger.debug('Generating left shield image...');
     const leftImageBuffer = await generateSingleImage(
         leftConfig,
         keyboard.left
     );
-    logger.info(
+    logger.debug(
         'Left shield image generated. Buffer size:',
         leftImageBuffer.length
     );
 
-    logger.info('Generating right shield image...');
+    logger.debug('Generating right shield image...');
     const rightImageBuffer = await generateSingleImage(
         rightConfig,
         keyboard.right
     );
-    logger.info(
+    logger.debug(
         'Right shield image generated. Buffer size:',
         rightImageBuffer.length
     );
 
     // Combine the left and right images into a single image
-    logger.info(
+    logger.debug(
         'Combining left and right shield images into a single image...'
     );
     const combinedCanvas = createCanvas(
@@ -76,17 +76,17 @@ export async function generateImage(
     const leftImage = new Image();
     leftImage.src = leftImageBuffer;
     combinedCtx.drawImage(leftImage, 0, 0);
-    logger.info('Left shield image drawn on combined canvas.');
+    logger.debug('Left shield image drawn on combined canvas.');
 
     // Draw the right image
     const rightImage = new Image();
     rightImage.src = rightImageBuffer;
     combinedCtx.drawImage(rightImage, leftConfig.canvasWidth, 0);
-    logger.info('Right shield image drawn on combined canvas.');
+    logger.debug('Right shield image drawn on combined canvas.');
 
     // Convert the combined canvas to a buffer
     const combinedImageBuffer = combinedCanvas.toBuffer('image/png');
-    logger.info(
+    logger.debug(
         'Combined image buffer generated. Size:',
         combinedImageBuffer.length
     );

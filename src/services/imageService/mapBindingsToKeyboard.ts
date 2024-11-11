@@ -6,8 +6,7 @@ import {
     Key,
     KeyBinding,
     KeyRow,
-} from '../../types/keyboard';
-
+} from '../../types/keyboard.js';
 import logger from '../../utils/logger.js';
 
 /**
@@ -27,54 +26,68 @@ export function mapBindingsToKeyboard(
         right: [],
     };
 
-    logger.info('Starting to map bindings to keyboard structure.');
+    logger.debug('Starting to map bindings to keyboard structure.');
 
-    // Iterate through each shield configuration
-    for (const shieldConfig of shieldConfigs) {
-        const { side, keyRows } = shieldConfig;
+    // Sort shieldConfigs by side to ensure order (left first, then right)
+    shieldConfigs.sort((a, b) => a.side.localeCompare(b.side));
 
-        logger.info(`Mapping keys for shield side: ${side}`);
+    // Determine the maximum number of rows across shields
+    const maxRows = Math.max(
+        ...shieldConfigs.map((config) => config.keyRows.length)
+    );
 
-        // Calculate the number of keys in this shield
-        const keyCount = keyRows.reduce((acc, row) => acc + row.keys.length, 0);
-        logger.info(`Number of keys to map for ${side} shield: ${keyCount}`);
+    logger.debug(`Maximum number of rows across shields: ${maxRows}`);
 
-        // Slice the corresponding layer data for this shield
-        const shieldLayerData = layerData.slice(0, keyCount);
-        // Remove the sliced data from layerData
-        layerData = layerData.slice(keyCount);
+    let currentBindingIndex = 0; // To track the position in layerData
 
-        logger.info(
-            `Processing ${shieldLayerData.length} key bindings for ${side} shield.`
-        );
+    for (let rowIndex = 0; rowIndex < maxRows; rowIndex++) {
+        logger.debug(`Mapping bindings for row index: ${rowIndex + 1}`);
 
-        // Map each row configuration to KeyRow objects
-        const mappedRows: KeyRow[] = keyRows.map((rowConfig) => {
-            const mappedKeys: Key[] = rowConfig.keys.map((position, index) => {
-                const keyBinding = shieldLayerData[index];
+        for (const shieldConfig of shieldConfigs) {
+            const { side, keyRows } = shieldConfig;
+
+            if (rowIndex >= keyRows.length) {
+                logger.warn(
+                    `Shield "${side}" does not have row index ${rowIndex + 1}`
+                );
+                continue;
+            }
+
+            const rowConfig = keyRows[rowIndex];
+            const { rowNumber, keys } = rowConfig;
+
+            logger.debug(
+                `Mapping row ${rowNumber} for shield "${side}" with ${keys.length} keys.`
+            );
+
+            const mappedKeys: Key[] = keys.map((position) => {
+                const keyBinding = layerData[currentBindingIndex];
                 const label = keyBinding ? keyBinding.args.join(' ') : '';
 
-                return {
+                const key: Key = {
                     label,
                     behavior: keyBinding ? keyBinding.behavior : '',
                     position,
                 };
+
+                currentBindingIndex++; // Move to the next binding
+
+                return key;
             });
 
-            return {
-                rowNumber: rowConfig.rowNumber, // Ensure 'rowNumber' is used
+            const keyRow: KeyRow = {
+                rowNumber: rowNumber,
                 keys: mappedKeys,
             };
-        });
 
-        // Assign the mapped rows to the appropriate side
-        if (side === 'left') {
-            keyboard.left = mappedRows;
-        } else if (side === 'right') {
-            keyboard.right = mappedRows;
+            if (side === 'left') {
+                keyboard.left.push(keyRow);
+            } else if (side === 'right') {
+                keyboard.right.push(keyRow);
+            }
+
+            logger.debug(`Mapped row ${rowNumber} for shield "${side}".`);
         }
-
-        logger.info(`Mapped ${mappedRows.length} rows for ${side} shield.`);
     }
 
     logger.debug(`Final Keyboard Object: ${JSON.stringify(keyboard, null, 2)}`);

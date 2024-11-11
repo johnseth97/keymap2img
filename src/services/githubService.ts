@@ -38,7 +38,7 @@ const fetchKeymap = async (
         // Log the keymap content for debugging
         logger.debug(`Fetched keymap content: ${content}`);
         // tell us who fetched the keymap
-        logger.info(
+        logger.debug(
             `Fetched keymap from: ${githubName}/${repoName}/${keymapPath}`
         );
 
@@ -54,7 +54,7 @@ const fetchKeymap = async (
 };
 
 const fetchShields = async (githubName: string, repoName: string) => {
-    const fileNames = ['build.yml', 'build.yaml'];
+    const fileNames = ['build.yaml', 'build.yml'];
     let content = '';
 
     for (const fileName of fileNames) {
@@ -100,7 +100,7 @@ const fetchShields = async (githubName: string, repoName: string) => {
     });
 
     // Log the shields for debugging
-    logger.info(`Extracted shields: ${shields}`);
+    logger.debug(`Extracted shields: ${shields}`);
 
     return shields;
 };

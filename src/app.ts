@@ -2,7 +2,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import process from 'process';
-import router from './routes/imageRoutes';
+import router from './routes/imageRoutes.js';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 

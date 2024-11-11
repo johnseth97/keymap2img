@@ -9,7 +9,11 @@ const octokit = new Octokit({
     userAgent: 'keymap2img-app',
 });
 
-const fetchKeymap = async (githubName, repoName, keymapPath) => {
+const fetchKeymap = async (
+    githubName: string,
+    repoName: string,
+    keymapPath: string
+) => {
     try {
         const response = await octokit.repos.getContent({
             owner: githubName,
@@ -17,20 +21,28 @@ const fetchKeymap = async (githubName, repoName, keymapPath) => {
             path: keymapPath,
         });
 
-        if (response.data.type !== 'file') {
+        const data = Array.isArray(response.data)
+            ? response.data[0]
+            : response.data;
+        if (data.type !== 'file') {
             throw new Error('Keymap path does not point to a file.');
         }
 
-        const content = Buffer.from(response.data.content, 'base64').toString(
-            'utf-8'
-        );
+        if (!data.content) {
+            throw new Error('Keymap is undefined.');
+        }
+        const content = Buffer.from(data.content, 'base64').toString('utf-8');
 
         // Log the keymap content for debugging
         console.log('Fetched keymap content:', content);
 
         return content;
-    } catch (error) {
-        console.error('Error fetching keymap:', error.message);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('Error fetching keymap:', error.message);
+        } else {
+            console.error('Error fetching keymap:', error);
+        }
         throw new Error('Failed to fetch keymap from GitHub.');
     }
 };

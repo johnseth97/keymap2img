@@ -1,17 +1,19 @@
 // src/app.js
+
+// 1. Load environment variables first
+import 'dotenv/config';
+
 import express from 'express';
-import dotenv from 'dotenv';
-import process from 'process';
 import router from './routes/imageRoutes.js';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-
-// --fix-- Replace the following code in src/app.js:
-
-// Load environment variables
-dotenv.config();
+import logger from './utils/logger.js'; // Ensure this comes after dotenv
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Log the port to verify it's loaded correctly
+logger.info(`Using PORT: ${PORT}`);
 
 // Set HTTP Headers for security
 app.use(helmet());
@@ -37,7 +39,6 @@ app.use((req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    logger.info(`Server is running on port ${PORT}`);
 });

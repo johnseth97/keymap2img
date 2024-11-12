@@ -1,8 +1,8 @@
 // src/helpers/shieldHelper.ts
 
-import { KeyboardHalfConfig } from '../types/keyboard.js';
-import { lily58_left_Config } from '../resources/shields/lily58_left.js';
-import { lily58_right_Config } from '../resources/shields/lily58_right.js';
+import { KeyboardHalfConfig } from '../types/keyboard';
+import { lily58_left_Config } from '../resources/shields/lily58_left';
+import { lily58_right_Config } from '../resources/shields/lily58_right';
 import logger from '../utils/logger.js';
 
 /**
@@ -19,7 +19,7 @@ export async function shieldHelper(
     for (const shield of shields) {
         if (shield === 'lily58_left') {
             shieldConfigs.push(lily58_left_Config);
-            logger.debug(`Mapped shield "${shield}" to its configuration.`);
+            logger.info(`Mapped shield "${shield}" to its configuration.`);
         } else if (shield === 'lily58_right') {
             shieldConfigs.push(lily58_right_Config);
             logger.debug(`Mapped shield "${shield}" to its configuration.`);

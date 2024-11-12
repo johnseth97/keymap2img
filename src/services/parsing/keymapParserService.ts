@@ -1,7 +1,7 @@
 // src/services/parserService.ts
 
-import logger from '../utils/logger.js';
-import { KeyBinding } from '../types/keyboard.js';
+import logger from '../../utils/logger.js';
+import { KeyBinding } from '../../types/keyboard.js';
 
 /**
  * Parses the ZMK keymap content to extract key bindings for a specific layer.

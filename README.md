@@ -1,4 +1,4 @@
-# keymap2img 
+# [keymap2img.io](https://keymap2img.io) 
 ### Generate Images of your ZMK keymap from your GitHub repository, just by typing in a URL
 
 To use, simply call the URL by following the format listed below(note the public domain will be avalible when ready):

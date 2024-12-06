@@ -19,7 +19,7 @@
         "@napi-rs/canvas": "^0.1.60",
         "@octokit/rest": "^21.0.2",
         "dotenv": "^16.4.5",
-        "express": "^4.21.1",
+        "express": "^4.21.2",
         "express-rate-limit": "^7.4.1",
         "helmet": "^8.0.0",
         "node-cache": "^5.1.2",
